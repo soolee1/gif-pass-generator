@@ -2,12 +2,39 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>게스트 전용 입장 GIF 생성기</title>
-    <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        background: #f2f2f2;
+        padding: 20px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      form input,
+      form button {
+        margin: 6px;
+        padding: 10px;
+        font-size: 16px;
+      }
+      canvas {
+        margin-top: 20px;
+        border: 2px solid #333;
+        background: #000;
+      }
+      #downloadLink {
+        display: none;
+        margin-top: 10px;
+        font-size: 18px;
+        text-decoration: none;
+        color: #0066cc;
+      }
+    </style>
   </head>
   <body>
-    <h1>입장용 GIF 생성기</h1>
+    <h1>게스트 전용 입장 GIF 생성기</h1>
     <form id="gifForm">
       <input type="text" id="showName" placeholder="공연명" required />
       <input type="text" id="guestName" placeholder="게스트 이름" required />
@@ -17,12 +44,87 @@
 
     <canvas id="previewCanvas" width="400" height="300"></canvas>
     <br />
-    <a id="downloadLink" download="guest-pass.gif" style="display: none"
-      >GIF 다운로드</a
-    >
+    <a id="downloadLink" download="guest-pass.gif">🎁 생성된 GIF 다운로드</a>
 
-    <script src="libs/gif.js"></script>
-    <script src="libs/qrcode.min.js"></script>
-    <script src="script.js"></script>
+    <!-- gif.js 라이브러리 내장 -->
+    <script>
+      /*! gif.js - MIT License - https://github.com/jnordberg/gif.js */
+      // (생략 없이 gif.js 전체를 여기에 넣어야 합니다. 부피가 커서 필요시 링크 제공 가능)
+      // 👉 대신 CDN으로 연결:
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    <script>
+      // gif.worker.js 경로 설정 (필수)
+      GIF.prototype.workerScript =
+        "https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js";
+    </script>
+
+    <!-- QRCode.js 내장 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- 메인 스크립트 -->
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        const canvas = document.getElementById("previewCanvas");
+        const ctx = canvas.getContext("2d");
+        const form = document.getElementById("gifForm");
+        const downloadLink = document.getElementById("downloadLink");
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const showName = document.getElementById("showName").value;
+          const guestName = document.getElementById("guestName").value;
+          const date = document.getElementById("date").value;
+
+          const gif = new GIF({
+            workers: 2,
+            quality: 10,
+            width: canvas.width,
+            height: canvas.height,
+          });
+
+          for (let i = 0; i < 8; i++) {
+            drawFrame(ctx, showName, guestName, date, i);
+            gif.addFrame(ctx, { copy: true, delay: 200 });
+          }
+
+          gif.on("finished", (blob) => {
+            const url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.style.display = "inline";
+          });
+
+          gif.render();
+        });
+
+        function drawFrame(ctx, showName, guestName, date, frameIndex) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#111";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = "#fff";
+          ctx.font = "bold 20px sans-serif";
+          ctx.fillText(`🎤 ${showName}`, 20, 50);
+          ctx.fillText(`🎟️ ${guestName}`, 20, 90);
+          ctx.fillText(`📅 ${date}`, 20, 130);
+
+          // 애니메이션용 컬러 원
+          ctx.fillStyle = `hsl(${frameIndex * 45}, 100%, 50%)`;
+          ctx.beginPath();
+          ctx.arc(300, 220, 20 + (frameIndex % 3) * 2, 0, Math.PI * 2);
+          ctx.fill();
+
+          // QR 코드 생성
+          const qrCanvas = document.createElement("canvas");
+          new QRCode(qrCanvas, {
+            text: `${guestName}-${date}-${showName}`,
+            width: 80,
+            height: 80,
+          });
+          ctx.drawImage(qrCanvas, 300, 20);
+        }
+      });
+    </script>
   </body>
 </html>
