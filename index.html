@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>게스트 전용 입장 GIF 생성기</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>입장용 GIF 생성기</h1>
+    <form id="gifForm">
+      <input type="text" id="showName" placeholder="공연명" required />
+      <input type="text" id="guestName" placeholder="게스트 이름" required />
+      <input type="date" id="date" required />
+      <button type="submit">GIF 생성</button>
+    </form>
+
+    <canvas id="previewCanvas" width="400" height="300"></canvas>
+    <br />
+    <a id="downloadLink" download="guest-pass.gif" style="display: none"
+      >GIF 다운로드</a
+    >
+
+    <script src="libs/gif.js"></script>
+    <script src="libs/qrcode.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
