@@ -42,7 +42,7 @@
       <button type="submit">GIF 생성</button>
     </form>
 
-    <canvas id="previewCanvas" width="400" height="300"></canvas>
+    <canvas id="previewCanvas" width="1600" height="900"></canvas>
     <br />
     <a id="downloadLink" download="guest-pass.gif">🎁 생성된 GIF 다운로드</a>
 
@@ -66,8 +66,8 @@
           const gif = new GIF({
             workers: 2,
             quality: 10,
-            width: canvas.width,
-            height: canvas.height,
+            width: 1600,
+            height: 900,
             workerScript: "gif.worker.js",
           });
 
@@ -86,29 +86,31 @@
         });
 
         function drawFrame(ctx, showName, guestName, date, frameIndex) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = "#111";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, 1600, 900);
 
+          // 배경을 흰색으로 채움
           ctx.fillStyle = "#fff";
-          ctx.font = "bold 20px sans-serif";
-          ctx.fillText(`🎤 ${showName}`, 20, 50);
-          ctx.fillText(`🎟️ ${guestName}`, 20, 90);
-          ctx.fillText(`📅 ${date}`, 20, 130);
+          ctx.fillRect(0, 0, 1600, 900);
+
+          ctx.fillStyle = "#000"; // 텍스트는 검은색으로 변경 (흰 배경 대비)
+          ctx.font = "bold 60px sans-serif";
+          ctx.fillText(`🎤 ${showName}`, 60, 150);
+          ctx.fillText(`🎟️ ${guestName}`, 60, 270);
+          ctx.fillText(`📅 ${date}`, 60, 390);
 
           ctx.fillStyle = `hsl(${frameIndex * 45}, 100%, 50%)`;
           ctx.beginPath();
-          ctx.arc(300, 220, 20 + (frameIndex % 3) * 2, 0, Math.PI * 2);
+          ctx.arc(1200, 660, 80 + (frameIndex % 3) * 10, 0, Math.PI * 2);
           ctx.fill();
 
           const qrCanvas = document.createElement("canvas");
           new QRCode(qrCanvas, {
             text: `${guestName}-${date}-${showName}`,
-            width: 80,
-            height: 80,
+            width: 160,
+            height: 160,
           });
 
-          ctx.drawImage(qrCanvas, 300, 20);
+          ctx.drawImage(qrCanvas, 1200, 60);
         }
       });
     </script>
